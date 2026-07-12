@@ -8,6 +8,8 @@ function viewLanding(mount){
 
   mount.innerHTML = `
     <section class="hero">
+      <div class="hero-bg" aria-hidden="true">${heroSVG()}</div>
+      <div class="hero-scrim" aria-hidden="true"></div>
       <div class="container hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">27 tests · 2,930 questions · ETS Big Book</p>
@@ -20,7 +22,6 @@ function viewLanding(mount){
             <div><strong>${totalMistakesOpen}</strong><span>mistakes open</span></div>
           </div>
         </div>
-        <div class="hero-art" aria-hidden="true">${heroSVG()}</div>
       </div>
     </section>
 
@@ -74,8 +75,8 @@ function trackCard(track, title, sub){
 }
 
 function heroSVG(){
-  return `<svg viewBox="0 0 680 500" width="100%" height="100%" role="presentation">
-    <rect x="0" y="0" width="680" height="500" rx="16" fill="#101826"/>
+  return `<svg viewBox="0 0 680 500" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" role="presentation">
+    <rect x="0" y="0" width="680" height="500" fill="#101826"/>
     <g stroke="#1c2740" stroke-width="0.5">
       <line x1="0" y1="40" x2="680" y2="40"/><line x1="0" y1="80" x2="680" y2="80"/><line x1="0" y1="120" x2="680" y2="120"/><line x1="0" y1="160" x2="680" y2="160"/><line x1="0" y1="200" x2="680" y2="200"/><line x1="0" y1="240" x2="680" y2="240"/><line x1="0" y1="280" x2="680" y2="280"/><line x1="0" y1="320" x2="680" y2="320"/><line x1="0" y1="360" x2="680" y2="360"/><line x1="0" y1="400" x2="680" y2="400"/><line x1="0" y1="440" x2="680" y2="440"/>
       <line x1="40" y1="0" x2="40" y2="500"/><line x1="80" y1="0" x2="80" y2="500"/><line x1="120" y1="0" x2="120" y2="500"/><line x1="160" y1="0" x2="160" y2="500"/><line x1="200" y1="0" x2="200" y2="500"/><line x1="240" y1="0" x2="240" y2="500"/><line x1="280" y1="0" x2="280" y2="500"/><line x1="320" y1="0" x2="320" y2="500"/><line x1="360" y1="0" x2="360" y2="500"/><line x1="400" y1="0" x2="400" y2="500"/><line x1="440" y1="0" x2="440" y2="500"/><line x1="480" y1="0" x2="480" y2="500"/><line x1="520" y1="0" x2="520" y2="500"/><line x1="560" y1="0" x2="560" y2="500"/><line x1="600" y1="0" x2="600" y2="500"/><line x1="640" y1="0" x2="640" y2="500"/>

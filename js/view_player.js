@@ -146,15 +146,18 @@ function renderQuestion(){
   const letters = isQC ? ['A','B','C','D'] : ['A','B','C','D','E'];
   const qcLabels = { A:'Quantity A is greater', B:'Quantity B is greater', C:'The two quantities are equal', D:'The relationship cannot be determined from the information given' };
 
-  const passageCtxs = q.contexts.filter(c=>c.type==='passage');
-  const stackedCtxs = q.contexts.filter(c=>c.type!=='passage');
-  const hasPassage = passageCtxs.length>0;
+  // Every non-question context (RC passage, DI graph, directions block) now
+  // gets the same left-pane treatment — nothing stacks above the question
+  // anymore, since that pushed the answer choices below the fold under a
+  // 60-second clock. Left pane holds all context images; right pane is
+  // always just the question + choices.
+  const sideCtxs = q.contexts; // graph, setup, passage, directions — all go in the left pane
+  const hasSideCtx = sideCtxs.length>0;
 
   const note = getNote(key);
 
   const questionPane = `
     <div class="q-pane">
-      ${stackedCtxs.length ? `<div class="ctx-stack">${stackedCtxs.map(c=>`<img src="${c.path}" alt="${c.type} for question ${q.q}" loading="lazy"/>`).join('')}</div>` : ''}
       <div class="q-card card">
         <div class="q-card-head">
           <span class="q-num mono">Q${q.q}</span>
@@ -173,11 +176,11 @@ function renderQuestion(){
       </div>
     </div>`;
 
-  if(hasPassage){
+  if(hasSideCtx){
     body.className = 'player-body split';
     body.innerHTML = `
       <div class="passage-pane">
-        ${passageCtxs.map(c=>`<img src="${c.path}" alt="Passage" loading="lazy"/>`).join('<div class="passage-divider"></div>')}
+        ${sideCtxs.map(c=>`<img src="${c.path}" alt="${c.type} for question ${q.q}" loading="lazy"/>`).join('<div class="passage-divider"></div>')}
       </div>
       ${questionPane}`;
   } else {
