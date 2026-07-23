@@ -7,7 +7,7 @@
 // it's actually allowed to read/write, not this key itself.
 const SUPABASE_URL = 'https://bmosjgwahweajmwwwqul.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtb3NqZ3dhaHdlYWptd3d3cXVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MDc1OTAsImV4cCI6MjEwMDM4MzU5MH0.2xnBLJC6X09a2WJN7MPA_J65eFQp5q1PKorqZC2tLO0';
-const TUTOR_EMAIL = 'kwekuseyyy@gmail.com'; // must match supabase_schema.sql
+const TUTOR_EMAIL = 'kwekuseyy@gmail.com'; // must match supabase_schema.sql
 
 const SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
