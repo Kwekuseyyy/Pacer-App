@@ -383,3 +383,14 @@ h1,h2,h3,.brand{font-family:var(--font-brand);}
 .github-connected{ background:var(--ink); color:var(--paper); border-color:var(--line); }
 .github-connected .mut{ color:#b9bfd0; }
 @media (max-width: 640px){ .github-form{ grid-template-columns:1fr; } }
+
+/* ============================================================
+   Auth gate
+   ============================================================ */
+.auth-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:var(--paper); }
+.auth-card{ width:100%; max-width:400px; padding:32px; }
+.auth-input{
+  width:100%; padding:11px 14px; border:1.5px solid var(--cardline); border-radius:var(--r-md);
+  font-size:14.5px; color:var(--txt); background:#fff;
+}
+.auth-input:focus{ outline:none; border-color:var(--gold); }

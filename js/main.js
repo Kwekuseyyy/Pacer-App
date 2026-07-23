@@ -206,14 +206,16 @@ function answeredCount(session){
 
 // ---------- boot ----------
 (async function boot(){
-  try{
-    await loadData();
-  }catch(err){
-    VIEW.innerHTML = `<div class="container" style="padding:60px 24px;">
-      <h2>Couldn't load the library</h2>
-      <p style="color:var(--mut)">${esc(err.message)}. Make sure <code>library/master.json</code> and <code>library/answers.json</code> are being served alongside this page (open via a local server, not file://).</p>
-    </div>`;
-    return;
-  }
-  ensureProfile(()=> render());
+  await requireAuth(VIEW, async () => {
+    try{
+      await loadData();
+    }catch(err){
+      VIEW.innerHTML = `<div class="container" style="padding:60px 24px;">
+        <h2>Couldn't load the library</h2>
+        <p style="color:var(--mut)">${esc(err.message)}. Make sure <code>library/master.json</code> and <code>library/answers.json</code> are being served alongside this page (open via a local server, not file://).</p>
+      </div>`;
+      return;
+    }
+    ensureProfile(()=> render());
+  });
 })();

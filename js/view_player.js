@@ -331,6 +331,9 @@ function finishSession(){
   const score = scoreSession(session);
   session.score = score;
   pushHistory(session);
+  if(CURRENT_STUDENT && CURRENT_STUDENT.email){
+    sbPushResult(session, CURRENT_STUDENT.email); // fire-and-forget, never blocks the UI
+  }
   clearInProgress();
   stopPlayer();
   ROUTE_STACK.length = 0;

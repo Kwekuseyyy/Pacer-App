@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Big Book Pacer — Admin</title>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div id="app">
+  <header class="dark-header">
+    <div class="container bbp-headbar">
+      <div class="bbp-brand"><span class="brand-mark">BB</span><span class="brand-word">Big Book Pacer — Admin</span></div>
+    </div>
+  </header>
+  <div id="adminView" class="container" style="padding:30px 20px;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase_client.js"></script>
+<script>
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const mount = document.getElementById('adminView');
+
+function loginScreen(){
+  mount.innerHTML = `
+    <div class="auth-screen" style="min-height:60vh;">
+      <div class="auth-card card">
+        <h2 style="margin:0 0 8px;">Admin sign-in</h2>
+        <p style="color:var(--mut); font-size:14px; margin:0 0 20px;">Sign in with your tutor email.</p>
+        <input type="email" id="authEmail" placeholder="you@email.com" class="auth-input"/>
+        <button class="btn btn-primary" id="authSend" style="width:100%; margin-top:12px;">Send sign-in link</button>
+        <p id="authStatus" style="font-size:13px; color:var(--mut); margin-top:14px;"></p>
+      </div>
+    </div>`;
+  mount.querySelector('#authSend').onclick = async () => {
+    const email = mount.querySelector('#authEmail').value.trim();
+    const status = mount.querySelector('#authStatus');
+    const res = await sbSendMagicLink(email);
+    status.textContent = res.ok ? 'Check your email for the link.' : res.message;
+  };
+}
+
+function notAdminScreen(email){
+  mount.innerHTML = `<div class="auth-screen" style="min-height:60vh;"><div class="auth-card card">
+    <h2>Not authorized</h2>
+    <p style="color:var(--mut); font-size:14px;">${esc(email)} isn't the tutor account for this app.</p>
+  </div></div>`;
+}
+
+async function renderAdmin(){
+  const roster = await sbListRoster();
+  const results = await sbListAllResults();
+
+  const rosterRows = roster.map(s => `
+    <tr>
+      <td>${esc(s.name)}</td>
+      <td>${esc(s.email)}</td>
+      <td>${s.active ? '<span style="color:#2a7d4f;">Active</span>' : '<span style="color:var(--mut);">Inactive</span>'}</td>
+      <td>
+        <button class="btn btn-sm btn-ghost" data-toggle="${s.id}" data-active="${s.active}">${s.active ? 'Deactivate' : 'Reactivate'}</button>
+        <button class="btn btn-sm btn-ghost" data-delete="${s.id}" style="color:var(--flag);">Remove</button>
+      </td>
+    </tr>`).join('');
+
+  const resultRows = results.slice(0, 200).map(r => `
+    <tr>
+      <td>${esc(r.student_email)}</td>
+      <td>t${r.test} ${esc(r.section)}</td>
+      <td>${esc(r.kind)}</td>
+      <td>${r.correct}/${r.scorable}${r.accuracy!=null ? ` (${r.accuracy}%)` : ''}</td>
+      <td>${r.seconds_taken ? Math.round(r.seconds_taken/60)+'m' : '—'}</td>
+      <td>${new Date(r.created_at).toLocaleDateString()}</td>
+    </tr>`).join('');
+
+  mount.innerHTML = `
+    <h2 style="margin-bottom:4px;">Student roster</h2>
+    <p style="color:var(--mut); font-size:14px; margin-bottom:16px;">Only students added here can sign in to the app.</p>
+    <div class="card" style="padding:20px; margin-bottom:16px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input id="newName" placeholder="Student name" class="auth-input" style="flex:1; min-width:160px;"/>
+        <input id="newEmail" placeholder="Student email" class="auth-input" style="flex:1; min-width:200px;"/>
+        <button class="btn btn-primary" id="addBtn">Add student</button>
+      </div>
+      <p id="addStatus" style="font-size:13px; color:var(--mut); margin-top:10px;"></p>
+    </div>
+    <table class="mono" style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:36px;">
+      <thead><tr style="text-align:left; color:var(--mut); font-size:12px;">
+        <th style="padding:8px;">Name</th><th style="padding:8px;">Email</th><th style="padding:8px;">Status</th><th style="padding:8px;"></th>
+      </tr></thead>
+      <tbody>${rosterRows || '<tr><td colspan="4" style="padding:14px; color:var(--mut);">No students added yet.</td></tr>'}</tbody>
+    </table>
+
+    <h2 style="margin-bottom:4px;">Results (most recent 200)</h2>
+    <table class="mono" style="width:100%; border-collapse:collapse; font-size:13.5px;">
+      <thead><tr style="text-align:left; color:var(--mut); font-size:12px;">
+        <th style="padding:8px;">Student</th><th style="padding:8px;">Section</th><th style="padding:8px;">Type</th><th style="padding:8px;">Score</th><th style="padding:8px;">Time</th><th style="padding:8px;">Date</th>
+      </tr></thead>
+      <tbody>${resultRows || '<tr><td colspan="6" style="padding:14px; color:var(--mut);">No results yet.</td></tr>'}</tbody>
+    </table>`;
+
+  mount.querySelector('#addBtn').onclick = async () => {
+    const name = mount.querySelector('#newName').value.trim();
+    const email = mount.querySelector('#newEmail').value.trim();
+    const status = mount.querySelector('#addStatus');
+    if(!name || !email.includes('@')){ status.textContent = 'Enter both a name and a valid email.'; return; }
+    const { error } = await sbAddStudent(name, email);
+    status.textContent = error ? error.message : 'Added.';
+    if(!error) renderAdmin();
+  };
+  mount.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.onclick = async () => {
+      await sbSetStudentActive(btn.dataset.toggle, btn.dataset.active !== 'true');
+      renderAdmin();
+    };
+  });
+  mount.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.onclick = async () => {
+      if(!confirm('Remove this student? They will lose access immediately.')) return;
+      await sbDeleteStudent(btn.dataset.delete);
+      renderAdmin();
+    };
+  });
+}
+
+(async function boot(){
+  const session = await sbGetSession();
+  if(!session){
+    loginScreen();
+    SB.auth.onAuthStateChange((_e, s) => { if(s) boot(); });
+    return;
+  }
+  if(!sbIsTutor(session)){ notAdminScreen(session.user.email); return; }
+  renderAdmin();
+})();
+</script>
+</body>
+</html>
